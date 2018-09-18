@@ -15,10 +15,11 @@ def process_data(filepath):
                        names= ['Date', 'SWE_obs','P_accum','T_max','T_min',\
                                'T_avg','P_incremental']).dropna()
     data['Jday'] = data['Date'].apply(lambda x: x.strftime('%j'))
+    J = data['Jday']
     P = data['P_incremental'].values
     T_avg = data['T_avg'].values
     SWE_obs= data['SWE_obs'].values
-    return data, P, T_avg, SWE_obs
+    return data, P, T_avg, SWE_obs, J
 
 
 
@@ -77,19 +78,19 @@ def simSWE(Psnow, meltflux):
     return cumSWE, act_melt
 
 
-def P_in(Prain, meltflux):
-    """
-    Rain plus melted snow
-    Args:
-        ppt_rain: Precipitation falling as rain
-        swe: Cumulative snow water equivalent
-        meltflux: Melted snow water equivalent
-    Returns:
-        Melted SWE plus rainfall
-    """
-    melt = np.where(np.subtract(swe, meltflux)>0.0, meltflux, swe)
-    ppt_in = np.add(melt, Prain)
-    return ppt_in
+#def P_in(Prain, meltflux):
+#    """
+#    Rain plus melted snow
+#    Args:
+#        ppt_rain: Precipitation falling as rain
+#        swe: Cumulative snow water equivalent
+#        meltflux: Melted snow water equivalent
+#    Returns:
+#        Melted SWE plus rainfall
+#    """
+#    melt = np.where(np.subtract(swe, meltflux)>0.0, meltflux, swe)
+#    ppt_in = np.add(melt, Prain)
+#    return ppt_in
 
 
 def md(sim, obs):
@@ -159,17 +160,39 @@ def rad2deg(rads):
 
 
 
-#def solar_decination_and
-#
-#
-#def Ra(,dr,G_sc= 0.0820):
-#    """
-#    Ra in MJ/m2day / 2.45 = Ra in mm/day
-#    
-#    calculates:
-#    Ra: Extraterrestrial radiation mm/day
-#    """
+def par_for_Extra_rad(J, lat):
+    """
+    args:
+        J: Julian day
+        lat: Latitude in angular degrees
+    
+    Calculates:
+        inverse relative distance Earth-sun (dr) and\
+        solar declination (delta)
+        Sunset hour angle (Ws)
+        
+    """
+    
+    dr = 1 + 0.033*np.cos((2*np.pi/365)*J)
+    
+    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
+    
+    Ws = np.arccos(-np.tan(deg2rad(lat))*np.tan(delta))
+    
+    return dr, delta, Ws
+    
+    
 
+def Extra_rad(Ws, delta, lat, dr, G_sc= 0.0820):
+    """
+    Ra in MJ/m2day / 2.45 = Ra in mm/day
+    
+    calculates:
+    Ra: Extraterrestrial radiation mm/day
+    """
+    Ra = (24*60/np.pi)*G_sc*dr*\
+    ((Ws*np.sin(lat)*np.sin(delta))+(np.cos(lat)*np.cos(delta)*np.sin(Ws)))
+    return Ra
 
 def RefET_Hargreaves(Tmax, Tmin, Ra):
     """
