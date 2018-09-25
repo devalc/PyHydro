@@ -18,8 +18,10 @@ def process_data(filepath):
     J = data['Jday']
     P = data['P_incremental'].values
     T_avg = data['T_avg'].values
+    T_max = data['T_max'].values
+    T_min = data['T_min'].values
     SWE_obs= data['SWE_obs'].values
-    return data, P, T_avg, SWE_obs, J
+    return data, P, T_avg, SWE_obs, J, T_max, T_min
 
 
 
@@ -158,41 +160,39 @@ def rad2deg(rads):
     return rads * (180.0 / np.pi)
 
 
-
-
-def par_for_Extra_rad(J, lat):
-    """
+    
+def extrarad(J, lat, G_sc= 0.0820):
+    
+    
+        """ 
     args:
-        J: Julian day
+        J: day of year
         lat: Latitude in angular degrees
     
     Calculates:
         inverse relative distance Earth-sun (dr) and\
         solar declination (delta)
         Sunset hour angle (Ws)
+    returns:
+        Ra: Extraterrestrial radiation in MJ/m2/day
         
-    """
-    
-    dr = 1 + 0.033*np.cos((2*np.pi/365)*J)
-    
-    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
-    
-    Ws = np.arccos(-np.tan(deg2rad(lat))*np.tan(delta))
-    
-    return dr, delta, Ws
-    
-    
+        """
+#        dr = np.zeros(J.shape)
+#        delta = np.zeros(J.shape )
+#        Ws = np.zeros(J.shape)
+        Ra = np.zeros(J.shape)
+        for i in J:
+            dr = 1 + (0.033*np.cos((2*np.pi/365)*int(i)))
+            delta = 0.4093 * np.sin(((2*np.pi/365)*int(i))-1.39)
+            Ws = np.arccos(-np.tan(deg2rad(lat))*np.tan(delta))
+            extrarad = ((24 * 60) / np.pi) * G_sc * dr * (Ws * np.sin(deg2rad(lat)) * np.sin(delta) +\
+        np.cos(deg2rad(lat)) * np.cos(delta) * np.sin(Ws))
+            extrarad = np.divide(extrarad, 2.45)
+            Ra = np.append(Ra, extrarad)
+            Ra = Ra[1:]
+            
+            return Ra
 
-def Extra_rad(Ws, delta, lat, dr, G_sc= 0.0820):
-    """
-    Ra in MJ/m2day / 2.45 = Ra in mm/day
-    
-    calculates:
-    Ra: Extraterrestrial radiation mm/day
-    """
-    Ra = (24*60/np.pi)*G_sc*dr*\
-    ((Ws*np.sin(lat)*np.sin(delta))+(np.cos(lat)*np.cos(delta)*np.sin(Ws)))
-    return Ra
 
 def RefET_Hargreaves(Tmax, Tmin, Ra):
     """

@@ -27,10 +27,12 @@ tsnow = 0.76 #degC
 
 ### 
 
-data, P, T_avg, SWE_obs, J = process_data(filepath)
+data, P, T_avg, SWE_obs, J, T_max, T_min = process_data(filepath)
 meltflux = Snowmelt_DD_usace(k, T_avg)
 Ps, Pr = P_to_Snow_and_Rain(P,T_avg)
 simSWE,actmelt = simSWE(Ps,meltflux)
-P_in = np.add(Pr, actmelt)
+#P_in = np.add(Pr, actmelt)
 
-dr, delta, Ws = par_for_Extra_rad(J, lat=lat)
+Ra = extrarad(J, lat)
+
+RefEt = RefET_Hargreaves(T_max, T_min, Ra)
