@@ -27,7 +27,7 @@ tsnow = 0 #degC
 #Soil Properties
 
 wp = 0.12 #wiltin point in percent
-wc = 3.0     # water content in percent
+wc = 0.5     # water content in percent
 fc = 0.36 # field capacity in percent
 
 
@@ -40,15 +40,25 @@ Ps, Pr = P_to_Snow_and_Rain(P,T_avg)
 simSWE,actmelt = simSWE(Ps,meltflux)
 #P_in = np.add(Pr, actmelt)
 
+# Compute ET
+
 Ra = extrarad(J, lat)
 
 RefEt = RefET_Hargreaves(T_max, T_min, Ra)
 
+
 simET = simET(wp,wc,RefEt,fc)
 
 #Calc Runoff 
-Q = (Pr + actmelt)- simET
-Q = np.where(Q<0, 0,Q)
+
+Q = Qsurf(Pr, actmelt, simET)
+
+# Check Water Balance
+
+deltaS = checkWbal(Pr, simET, Q)
+print deltaS
+
+
 ### plots
 def plots():
     plt.figure(figsize=(14,24))

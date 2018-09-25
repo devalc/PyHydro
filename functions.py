@@ -231,4 +231,30 @@ def simET( wp, wc, ETo, fc):
     return(ETo*theta)
 
 
+def Qsurf(Precip, snowmelt, ET ):
+    """
+    Computes surface runoff
+    Precip: is the precipitation falling as Rain
+    ET: simulated Evapotranspiration
+    snowmelt: simulated actual snowmelt
+    """
+    Qsurf = (Precip + snowmelt)- ET
+    Qsurf = np.where(Qsurf<0, 0,Qsurf)
+    
+    return Qsurf
+    
 
+def checkWbal(Precip, ET, Qsurf):
+    """
+    Checks water balance by computing change in storage (deltaS)
+    Precip: is the precipitation falling as Rain
+    ET: simulated Evapotranspiration
+    Qsurf: Surface runoff
+    """
+    
+    deltaS = Precip - ET- Qsurf
+    
+    return deltaS
+
+
+    
