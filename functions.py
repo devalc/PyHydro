@@ -10,6 +10,7 @@ import pandas as pd
 
 
 
+
 def process_data(filepath):
     data = pd.read_csv(filepath, nrows = 6954,parse_dates=['Date'], skiprows=1,\
                        names= ['Date', 'SWE_obs','P_accum','T_max','T_min',\
@@ -177,9 +178,7 @@ def extrarad(J, lat, G_sc= 0.0820):
         Ra: Extraterrestrial radiation in MJ/m2/day
         
         """
-#        dr = np.zeros(J.shape)
-#        delta = np.zeros(J.shape )
-#        Ws = np.zeros(J.shape)
+
         Ra = np.zeros(J.shape)
         for i in J:
             dr = 1 + (0.033*np.cos((2*np.pi/365)*int(i)))
@@ -190,8 +189,7 @@ def extrarad(J, lat, G_sc= 0.0820):
             extrarad = np.divide(extrarad, 2.45)
             Ra = np.append(Ra, extrarad)
             Ra = Ra[1:]
-            
-            return Ra
+        return Ra
 
 
 def RefET_Hargreaves(Tmax, Tmin, Ra):
@@ -231,3 +229,6 @@ def simET( wp, wc, ETo, fc):
     elif wc <= wp:
         theta = 0.0
     return(ETo*theta)
+
+
+

@@ -27,7 +27,7 @@ tsnow = 0 #degC
 #Soil Properties
 
 wp = 0.12 #wiltin point in percent
-wc = 0.36     # water content in percent
+wc = 3.0     # water content in percent
 fc = 0.36 # field capacity in percent
 
 
@@ -46,24 +46,27 @@ RefEt = RefET_Hargreaves(T_max, T_min, Ra)
 
 simET = simET(wp,wc,RefEt,fc)
 
-
+#Calc Runoff 
+Q = (Pr + actmelt)- simET
 
 ### plots
+def plots():
+    plt.figure(figsize=(14,24))
+    plt.subplot(411)
+    plt.plot(data['Date'],P,'r-')
+    plt.ylabel('Precipitation [mm]')
+    plt.subplot(413)
+    plt.plot(data['Date'],meltflux,'b-')
+    plt.ylabel('Melt flux [mm/day]')
+    plt.subplot(412)
+    plt.plot(data['Date'],simSWE,'b-')
+    plt.plot(data['Date'],SWE_obs,'ko')
+    plt.xlabel('Date')
+    plt.ylabel('SWE [mm]')
+    plt.legend(('Modeled SWE','Observed SWE'))
+    plt.subplot(414)
+    plt.plot(data['Date'], Q, 'b-')
+    plt.ylabel('Qsurf [mm/day]')
+    return plt.show()
 
-plt.figure(figsize=(14,24))
-plt.subplot(411)
-plt.plot(data['Date'],P,'r-')
-plt.ylabel('Precipitation [mm]')
-plt.subplot(412)
-plt.plot(data['Date'],T_avg,'r-')
-plt.ylabel('Temperature [${}^\circ$C]')
-plt.subplot(413)
-plt.plot(data['Date'],meltflux,'b-')
-plt.ylabel('Melt flux [mm/day]')
-plt.subplot(414)
-plt.plot(data['Date'],simSWE,'b-')
-plt.plot(data['Date'],SWE_obs,'ko')
-plt.xlabel('Date')
-plt.ylabel('SWE [mm]')
-plt.legend(('Modeled SWE','Observed SWE'))
-plt.show()
+plots()
