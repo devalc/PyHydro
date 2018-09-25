@@ -48,7 +48,7 @@ simET = simET(wp,wc,RefEt,fc)
 
 #Calc Runoff 
 Q = (Pr + actmelt)- simET
-
+Q = np.where(Q<0, 0,Q)
 ### plots
 def plots():
     plt.figure(figsize=(14,24))
@@ -56,7 +56,7 @@ def plots():
     plt.plot(data['Date'],P,'r-')
     plt.ylabel('Precipitation [mm]')
     plt.subplot(413)
-    plt.plot(data['Date'],meltflux,'b-')
+    plt.plot(data['Date'],actmelt,'b-')
     plt.ylabel('Melt flux [mm/day]')
     plt.subplot(412)
     plt.plot(data['Date'],simSWE,'b-')
