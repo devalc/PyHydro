@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 #locate snoel file
-filepath= 'D:/Chinmay/Hydro_modeling_erin_fall_2018/snotel_623_pre_mgmt.csv'
+filepath= 'D:/Chinmay/Hydro_modeling_erin_fall_2018/Day1_snowmelt/snotel_623_pre_mgmt.csv'
 
 
 # Latitude in Angular degrees
@@ -19,13 +19,20 @@ lat = 47.15
 
 
 #optimized parameters
-k = 1.1456 #length/degree/day
-tbase = 4.77 #degC
-train = 2.22 #degC
-tsnow = 0.76 #degC
+k = 4.6 #length/degree/day
+tbase = 0.0 #degC
+train = 3 #degC
+tsnow = 0 #degC
+
+#Soil Properties
+
+wp = 0.12 #wiltin point in percent
+wc = 0.36     # water content in percent
+fc = 0.36 # field capacity in percent
 
 
-### 
+
+## 
 
 data, P, T_avg, SWE_obs, J, T_max, T_min = process_data(filepath)
 meltflux = Snowmelt_DD_usace(k, T_avg)
@@ -36,3 +43,27 @@ simSWE,actmelt = simSWE(Ps,meltflux)
 Ra = extrarad(J, lat)
 
 RefEt = RefET_Hargreaves(T_max, T_min, Ra)
+
+simET = simET(wp,wc,RefEt,fc)
+
+
+
+### plots
+
+plt.figure(figsize=(14,24))
+plt.subplot(411)
+plt.plot(data['Date'],P,'r-')
+plt.ylabel('Precipitation [mm]')
+plt.subplot(412)
+plt.plot(data['Date'],T_avg,'r-')
+plt.ylabel('Temperature [${}^\circ$C]')
+plt.subplot(413)
+plt.plot(data['Date'],meltflux,'b-')
+plt.ylabel('Melt flux [mm/day]')
+plt.subplot(414)
+plt.plot(data['Date'],simSWE,'b-')
+plt.plot(data['Date'],SWE_obs,'ko')
+plt.xlabel('Date')
+plt.ylabel('SWE [mm]')
+plt.legend(('Modeled SWE','Observed SWE'))
+plt.show()
