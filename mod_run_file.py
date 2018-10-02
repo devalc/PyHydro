@@ -25,11 +25,14 @@ train = 3 #degC
 tsnow = 0 #degC
 
 #Soil Properties
-
-wp = 0.12 #wiltin point in percent
-wc = 0.5     # water content in percent
+wp = 0.12 #wilting point in percent
+wc = 0.3     # water content in percent
 fc = 0.36 # field capacity in percent
 
+D= 100 # depth of soil layer in mm
+Porosity = 0.45 # porosity in perent
+
+Sat_wc = D * Porosity
 
 
 ## 
@@ -49,9 +52,14 @@ RefEt = RefET_Hargreaves(T_max, T_min, Ra)
 
 simET = simET(wp,wc,RefEt,fc)
 
+
+#SM storage if multiplied by the depth of layer
+
+SM, Qsurf = SM(Pr, actmelt, simET)
+
 #Calc Runoff 
 
-Q = Qsurf(Pr, actmelt, simET)
+#Q = Qsurf(Pr, actmelt, simET)
 
 # Check Water Balance
 
@@ -60,7 +68,7 @@ print deltaS
 
 
 ### plots
-def plots():
+def plots1():
     plt.figure(figsize=(14,24))
     plt.subplot(411)
     plt.plot(data['Date'],P,'r-')
@@ -79,4 +87,14 @@ def plots():
     plt.ylabel('Qsurf [mm/day]')
     return plt.show()
 
-plots()
+def plotET():
+     plt.figure(figsize=(14,24))
+     plt.subplot(411)
+     plt.plot(data['Date'],RefEt,'b-')
+     plt.plot(data['Date'],simET,'ko')
+     plt.xlabel('Date')
+     plt.ylabel('ET [mm]')
+     plt.legend(('Hargreaves_Ref_ET','simulate ET'))
+
+plots1()
+plotET()

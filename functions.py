@@ -81,20 +81,6 @@ def simSWE(Psnow, meltflux):
     return cumSWE, act_melt
 
 
-#def P_in(Prain, meltflux):
-#    """
-#    Rain plus melted snow
-#    Args:
-#        ppt_rain: Precipitation falling as rain
-#        swe: Cumulative snow water equivalent
-#        meltflux: Melted snow water equivalent
-#    Returns:
-#        Melted SWE plus rainfall
-#    """
-#    melt = np.where(np.subtract(swe, meltflux)>0.0, meltflux, swe)
-#    ppt_in = np.add(melt, Prain)
-#    return ppt_in
-
 
 def md(sim, obs):
     """
@@ -212,8 +198,9 @@ def RefET_Hargreaves(Tmax, Tmin, Ra):
 
 def simET( wp, wc, ETo, fc):
     """
-    simulates actual evapotranspiration based on wilting point, water content\
-    field capacity
+    simulates actual evapotranspiration based on soil water stress
+    soil water stress factor is calculated using wilting point, water content\
+    and field capacity
     Args:    
     wp: Wilting point
     wc: Water content
@@ -231,17 +218,40 @@ def simET( wp, wc, ETo, fc):
     return(ETo*theta)
 
 
-def Qsurf(Precip, snowmelt, ET ):
-    """
-    Computes surface runoff
-    Precip: is the precipitation falling as Rain
-    ET: simulated Evapotranspiration
-    snowmelt: simulated actual snowmelt
-    """
-    Qsurf = (Precip + snowmelt)- ET
-    Qsurf = np.where(Qsurf<0, 0,Qsurf)
+#def Qsurf(Precip, snowmelt, ET):
+#    """
+#    ###calculate this as a function of storage
+#    storage greater than max storage which is a funciton of porosity and depth of soil layer
+#    
+#    Computes surface runoff
+#    Precip: is the precipitation falling as Rain
+#    ET: simulated Evapotranspiration
+#    snowmelt: simulated actual snowmelt
+#    """
+#    Qsurf = (Precip + snowmelt)- ET
+#    Qsurf = np.where(Qsurf<0, 0,Qsurf)
+#    
+#    return Qsurf
     
-    return Qsurf
+
+def SM(Precip, snowmelt, ET, D=100, n=0.45):
+    """
+    Computes soil moisture  in th grid cell 
+    assuming a bucket model
+    
+    where:
+        D = depth of soil layer (mm)
+        n= porocity of soil layer (%)
+    """
+    SM = np.zeros(Precip.shape)
+    Qsurf = np.zeros(Precip.shape)
+    #saturated water content
+    sat_wc = D*n
+    for i in range(1, len(Precip)):
+        SM[i] = Precip[i] + snowmelt[i] + SM[i-1] -ET[i]
+        if SM[i] > sat_wc:
+            Qsurf [i] = SM[i] - sat_wc and SM[i] == sat_wc 
+    return SM, Qsurf
     
 
 def checkWbal(Precip, ET, Qsurf):
@@ -256,5 +266,7 @@ def checkWbal(Precip, ET, Qsurf):
     
     return deltaS
 
+"""
+check sensitivity with wc and wp
+"""
 
-    
