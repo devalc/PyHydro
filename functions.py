@@ -250,9 +250,39 @@ def SM(Precip, snowmelt, ET, D=100, n=0.45):
     for i in range(1, len(Precip)):
         SM[i] = Precip[i] + snowmelt[i] + SM[i-1] -ET[i]
         if SM[i] > sat_wc:
-            Qsurf [i] = SM[i] - sat_wc and SM[i] == sat_wc 
+            Qsurf [i] = SM[i] - sat_wc 
+            SM[i] = sat_wc
+    SM = np.where(SM<0,0,SM)
     return SM, Qsurf
+
+
+def ht_wattab(soilmoist,fc,D= 100, n=0.45):
+    """
+        
+   
+    Computes height of water table
     
+    where:
+        D = depth of soil layer (mm)
+        n= porocity of soil layer (%)
+        fc = watercontent at field capacity
+        
+    
+    """
+    
+    ht = np.zeros(soilmoist.shape)
+    sat_wc = D*n
+    for i in range(1, len(soilmoist)):
+        if soilmoist[i] < fc:
+            ht[i] = 0
+        elif soilmoist[i] > sat_wc:
+            ht[i] = D
+        else:
+            ht[i] = D*((soilmoist[i]-fc)/(sat_wc-fc))
+    return ht
+        
+
+#def Qlat(Ksat=)
 
 def checkWbal(Precip, ET, Qsurf):
     """

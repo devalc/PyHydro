@@ -83,7 +83,7 @@ def plots1():
     plt.ylabel('SWE [mm]')
     plt.legend(('Modeled SWE','Observed SWE'))
     plt.subplot(414)
-    plt.plot(data['Date'], Q, 'b-')
+    plt.plot(data['Date'], Qsurf, 'b-')
     plt.ylabel('Qsurf [mm/day]')
     return plt.show()
 
