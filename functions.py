@@ -195,8 +195,16 @@ def RefET_Hargreaves(Tmax, Tmin, Ra):
     return ETo
 
 
+def ETpot(ref_et, kc=1.0):
+    """
+    Calculates Potential ET as a funciton of crop coefficient Kc
+    Kc is assumed to be 1 in this model for simplicity
+    """
+    etpot = ref_et * kc
+    return etpot
 
-def simET( wp, wc, ETo, fc):
+
+def simET( wp, wc, potET, fc):
     """
     simulates actual evapotranspiration based on soil water stress
     soil water stress factor is calculated using wilting point, water content\
@@ -204,7 +212,7 @@ def simET( wp, wc, ETo, fc):
     Args:    
     wp: Wilting point
     wc: Water content
-    ETo: Potential evapotranspiration
+    potET: Potential evapotranspiration
     fc: Field capacity
     
     throws out:
@@ -215,7 +223,7 @@ def simET( wp, wc, ETo, fc):
         theta = (0.8*fc - wc)/(0.8*fc-wp)
     elif wc <= wp:
         theta = 0.0
-    return(ETo*theta)
+    return(potET*theta)
 
 
 #def Qsurf(Precip, snowmelt, ET):

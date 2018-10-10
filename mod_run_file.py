@@ -48,14 +48,19 @@ simSWE,actmelt = simSWE(Ps,meltflux)
 Ra = extrarad(J, lat)
 
 RefEt = RefET_Hargreaves(T_max, T_min, Ra)
+PotET = ETpot(RefEt)
 
-
-simET = simET(wp,wc,RefEt,fc)
+simET = simET(wp,wc,PotET,fc)
 
 
 #SM storage if multiplied by the depth of layer
 
 SM, Qsurf = SM(Pr, actmelt, simET)
+
+#calculate ht of water table
+
+h = ht_wattab(SM, fc)
+
 
 #Calc Runoff 
 
@@ -63,8 +68,8 @@ SM, Qsurf = SM(Pr, actmelt, simET)
 
 # Check Water Balance
 
-deltaS = checkWbal(Pr, simET, Q)
-print deltaS
+#deltaS = checkWbal(Pr, simET, Q)
+#print deltaS
 
 
 ### plots
@@ -95,6 +100,16 @@ def plotET():
      plt.xlabel('Date')
      plt.ylabel('ET [mm]')
      plt.legend(('Hargreaves_Ref_ET','simulate ET'))
+     
+def plotht_wtable():
+    plt.figure(figsize=(14,24))
+    plt.subplot(411)
+    plt.plot(data['Date'],h,'r-')
+    plt.ylabel('Water table height [mm]')
+    plt.subplot(412)
+    plt.plot(data['Date'],SM,'r-')
+    plt.ylabel('soil moisture [mm]')
 
 plots1()
-plotET()
+#plotET()
+plotht_wtable()
