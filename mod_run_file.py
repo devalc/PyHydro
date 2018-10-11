@@ -61,6 +61,16 @@ SM, Qsurf = SM(Pr, actmelt, simET)
 
 h = ht_wattab(SM, fc)
 
+# lateral flow
+
+latq = qlat(h, SM, fc)
+
+#percolation
+Perc = perc(SM,fc)
+
+#baseflow
+
+#bflow = baseflow(SM, Perc)
 
 #Calc Runoff 
 

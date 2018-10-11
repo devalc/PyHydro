@@ -226,30 +226,10 @@ def simET( wp, wc, potET, fc):
     return(potET*theta)
 
 
-#def Qsurf(Precip, snowmelt, ET):
-#    """
-#    ###calculate this as a function of storage
-#    storage greater than max storage which is a funciton of porosity and depth of soil layer
-#    
-#    Computes surface runoff
-#    Precip: is the precipitation falling as Rain
-#    ET: simulated Evapotranspiration
-#    snowmelt: simulated actual snowmelt
-#    """
-#    Qsurf = (Precip + snowmelt)- ET
-#    Qsurf = np.where(Qsurf<0, 0,Qsurf)
-#    
-#    return Qsurf
-#
-#def Perc():
-#    
-#def qlat():
-    
 
 def SM(Precip, snowmelt, ET, D=100, n=0.45):
     """
-    Computes soil moisture  in th grid cell 
-    assuming a bucket model
+    Computes soil moisture 
     
     where:
         D = depth of soil layer (mm)
@@ -294,7 +274,46 @@ def ht_wattab(soilmoist,fc,D= 100, n=0.45):
     return ht
         
 
-#def Qlat(Ksat=)
+def perc(soilmoist, fc, D=100, n=0.45, Kv= 1.0):
+    """
+    Kv: vertical conductivity in mm/day
+    
+    
+    """
+    perc = np.zeros(soilmoist.shape)
+#    sat_wc = D*n
+    for i in range(1,len(soilmoist)):
+        if soilmoist[i] > fc:
+            perc[i] = Kv
+        else:
+            perc[i] = 0
+    return perc
+    
+    
+def qlat(ht,SM, fc, Ksat=10, D = 100, w=20):
+    
+    """
+    w: width of soil over which we have ht
+    """
+    qlat = np.zeros(ht.shape)
+    
+    for i in range(1, len(ht)):
+#        if SM[i] > fc:
+#            k = 
+#            
+        qlat[i] =  ht[i] * Ksat 
+    return qlat
+
+
+def baseflow(storage, perc, alpha = 0.2):
+    bflo = np.zeros(storage.shape)
+    
+    for i in range (1, len(storage)):
+        bflo[i] = storage[i] * alpha
+        storage[i]= storage[i-1] - bflo[i] + perc[i] 
+    return bflo, storage
+
+
 
 def checkWbal(Precip, ET, Qsurf):
     """
@@ -308,7 +327,5 @@ def checkWbal(Precip, ET, Qsurf):
     
     return deltaS
 
-"""
-check sensitivity with wc and wp
-"""
+
 
