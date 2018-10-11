@@ -240,6 +240,10 @@ def simET( wp, wc, potET, fc):
 #    Qsurf = np.where(Qsurf<0, 0,Qsurf)
 #    
 #    return Qsurf
+#
+#def Perc():
+#    
+#def qlat():
     
 
 def SM(Precip, snowmelt, ET, D=100, n=0.45):
