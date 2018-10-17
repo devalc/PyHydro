@@ -10,7 +10,6 @@ import pandas as pd
 
 
 
-
 def process_data(filepath):
     data = pd.read_csv(filepath, nrows = 6954,parse_dates=['Date'], skiprows=1,\
                        names= ['Date', 'SWE_obs','P_accum','T_max','T_min',\
