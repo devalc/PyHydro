@@ -14,6 +14,7 @@ from ET import *
 from height_wattable import *
 from perc import *
 from baseflow import *
+from latq import *
 
 #locate snoel file
 filepath= 'D:/Chinmay/Hydro_modeling_erin_fall_2018/Day1_snowmelt/snotel_623_pre_mgmt.csv'
@@ -96,7 +97,7 @@ def run_model(filepath):
             s[i] = Smax
         Q[i] = q[i] + latq[i] + bf[i]
     
-    print SWEsim, PotET, et, hwt, Q
+    print (SWEsim, PotET, et, hwt, Q)
     
     p = np.where(s>Sat_wc, s-Sat_wc, 0.0)
     swc = np.subtract(s,p)
