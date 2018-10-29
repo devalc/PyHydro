@@ -16,7 +16,7 @@ G_sc_min= 0.0820 ##### Solar constant in  MJ/m2.min
 LHV = 0.408 #### latent heat of vaporization in MJ/kg
 
 
-###########################
+########################### NET SHORTWAVE RADIATION#############################
 
 
 def extrarad(J, lat, units = 'degrees'):
@@ -58,17 +58,6 @@ def albedo (TS):
     a = np.multiply(0.738, np.power(TS, -0.1908))
     
     return a
-
-
-#def solar_declination(J):
-#    
-#    """
-#    Computes solar declination angle (in radians) given the jay of year 
-#    
-#    """
-#    delta = np.multiply(0.4093, np.sin(np.subtract(np.multiply(np.divide(2*np.pi, 365), J), 1.39)))
-#    
-#    return delta
 
 
 def solar_elevationangle(lat, delta, Td = 12.0, Sn = 12.0 , units= 'degrees'):
@@ -193,3 +182,8 @@ def qs(lat, J, slope, aspect, TS =0.0, C_f = 0.0, units = 'degrees'):
     qs = np.multiply(max(0.1,(1-C_f)), (1-a)*qd*max(0,(np.sin(i)/np.sin(Sphi))))
     
     return qs
+
+
+########################### NET LONGWAVE RADIATION#############################
+
+
