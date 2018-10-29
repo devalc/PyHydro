@@ -17,7 +17,7 @@ from baseflow import *
 from latq import *
 
 #locate snoel file
-filepath= 'D:/GitHub/Hydro_moddev/data/snotel_623_pre_mgmt.csv'
+filepath= 'C:/Chinmay/GitHub/Hydro_moddev/data/snotel_623_pre_mgmt.csv'
 
 def run_model(filepath):
     
@@ -102,25 +102,22 @@ def run_model(filepath):
     p = np.where(s>Sat_wc, s-Sat_wc, 0.0)
     swc = np.subtract(s,p)
     
-#    index = np.arange(0, SWE_obs.shape[0], 1)
+#   
+    plt.plot(data['Date'], SWE_obs, 'r', data['Date'], SWEsim, 'k')
+    plt.show()
+    
     plt.subplot(2,1,1)
     plt.plot(data['Date'], s, 'r', data['Date'], swc, 'k', data['Date'], p, 'b')
     plt.subplot(2,1,2)
-    plt.plot(data['Date'], PotET, 'r', data['Date'], et, 'b')
-    # plt.subplot(4, 1, 3)
-    # plt.plot(index, q, 'b', index, qlat, 'g', index, r, 'c')
-    # plt.subplot(4,1,4)
-    # plt.plot(date, bf, 'r', date, sb, 'k')
-    # plt.subplot(3,1,3)
-    # plt.plot(index,et,'g')
-    # plt.subplot(4,1,4)
-    # plt.plot(index,swe,'b',index,swe_mod,'r')
+    plt.plot(data['Date'], PotET, 'r', data['Date'], et, 'k')
     plt.show()
 
     plt.plot(data['Date'], bf, 'r', data['Date'], latq, 'g', data['Date'], q, 'c', data['Date'], Q, 'b')
     plt.show()
     plt.plot(data['Date'], ((Q/1000.0)*10.0*10.0)/(60.0*60.0*24.0), 'b')
     plt.show()
+    
+    print("Checking Water Balance")
     print("P", np.sum(P_s))
     print("ET", np.sum(et))
     print("q", np.sum(q))
