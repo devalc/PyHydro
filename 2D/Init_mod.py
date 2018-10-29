@@ -73,7 +73,7 @@ def run_model(filepath):
     meltflux = Snowmelt_DD_usace(k, T_avg)
     Ps, Pr = P_to_Snow_and_Rain(P,T_avg)
     SWEsim,actmelt = simSWE(Ps,meltflux)
-    P_s = Pr + actmelt # water stored in system from Precip and melt
+    P_s = Pr + actmelt # water stored in system from Precip and melt and serves as an imput to wshed
     # Compute ET
     Ra = extrarad(J, lat)
     RefEt = RefET_Hargreaves(T_max, T_min, Ra)
