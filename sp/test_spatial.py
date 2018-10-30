@@ -10,9 +10,9 @@ import urllib
 import zipfile
 import numpy as np
 import pcraster as pcr
-import elevation as el
-import gdal, ogr
-
+import gdal
+from gdalconst import *
+import fiona
 
 #def downloadDEM(url):
 #    
@@ -46,10 +46,14 @@ import gdal, ogr
 #unzip('D:/GitHub/PyHydro/sp/N47W117.hgt.zip' ,'D:/GitHub/PyHydro/sp/dem/')
 
 
-dem_path = '/data/dem/Mica_creek.Tif'
-output = os.getcwd() + dem_path
+shp = fiona.open('D:/OneDrive - University of Idaho/pyhydro_dat/shapefile/wsheds30mwgs84.shp')
+bounds = shp.bounds
 
-#shapefile = fiona.open
-#
-#el.clip()
+dem_path = 'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.TIF'
+
+#download and clip dem to the extent
+
+dem = gdal.Open(dem_path)
+dem= gdal.Translate('new.tif', dem, projWin = bounds)
+dem = None
 
