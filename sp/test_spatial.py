@@ -11,8 +11,7 @@ import zipfile
 import numpy as np
 import pcraster as pcr
 import elevation as el
-import shapely
-import geopandas as gpd
+import gdal, ogr
 
 
 #def downloadDEM(url):
@@ -50,7 +49,7 @@ import geopandas as gpd
 dem_path = '/data/dem/Mica_creek.Tif'
 output = os.getcwd() + dem_path
 
-shapefile = fiona.open
-
-el.clip()
+#shapefile = fiona.open
+#
+#el.clip()
 
