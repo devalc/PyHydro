@@ -9,10 +9,29 @@ import os
 import urllib
 import zipfile
 import numpy as np
+import pandas as pd
 import pcraster as pcr
 import gdal
 from gdalconst import *
 import fiona
+
+from shapely.geometry import box
+import geopandas as gpd
+from fiona.crs import from_epsg
+
+import rasterio
+
+from rasterio.plot import show
+
+from rasterio.plot import show_hist
+
+from rasterio.mask import mask
+
+
+
+import pycrs
+
+
 
 #def downloadDEM(url):
 #    
@@ -46,14 +65,35 @@ import fiona
 #unzip('D:/GitHub/PyHydro/sp/N47W117.hgt.zip' ,'D:/GitHub/PyHydro/sp/dem/')
 
 
+
+dem_path = r'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.TIF'
+out_tif = r"D:/OneDrive - University of Idaho/pyhydro_dat/dem/masked_DEM.TIF"
+data = rasterio.open(dem_path)
+
 shp = fiona.open('D:/OneDrive - University of Idaho/pyhydro_dat/shapefile/wsheds30mwgs84.shp')
-bounds = shp.bounds
+minx, miny, maxx, maxy = shp.bounds
 
-dem_path = 'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.TIF'
+bbox = box(minx, miny, maxx, maxy)
+geo = gpd.GeoDataFrame({'geometry': bbox}, index=[0], crs=from_epsg(4326))
+geo = geo.to_crs(crs=data.crs.data)
 
-#download and clip dem to the extent
 
-dem = gdal.Open(dem_path)
-dem= gdal.Translate('new.tif', dem, projWin = bounds)
+
+def getFeatures(gdf):
+    """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
+    import json
+    return [json.loads(gdf.to_json())['features'][0]['geometry']]
+
+coords = getFeatures(geo)
+
+out_img, out_transform = mask(raster=data, shapes=coords, crop=True)
+
+out_meta = data.meta.copy()
+epsg_code = int(data.crs.data['init'][5:])
+
+
+out_meta.update({"driver": "GTiff","height": out_img.shape[1],\
+                 "width": out_img.shape[2], "transform": out_transform, \
+                 "crs": pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
 
 
