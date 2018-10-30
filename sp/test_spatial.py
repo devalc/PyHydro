@@ -55,5 +55,5 @@ dem_path = 'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.T
 
 dem = gdal.Open(dem_path)
 dem= gdal.Translate('new.tif', dem, projWin = bounds)
-dem.flus
+
 
