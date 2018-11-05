@@ -17,7 +17,7 @@ from baseflow import *
 from latq import *
 
 #locate snoel file
-filepath= 'C:/Chinmay/GitHub/Hydro_moddev/data/snotel_623_pre_mgmt.csv'
+filepath= 'C:/Chinmay/GitHub/PyHydro/data/snotel_623_pre_mgmt.csv'
 
 def run_model(filepath):
     
