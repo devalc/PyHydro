@@ -33,6 +33,20 @@ import pycrs
 
 
 
+dem = 'D:/Chinmay/Hydro_modeling_erin_fall_2018/sp_model/dem.map'
+output_path = 'D:/Chinmay/Hydro_modeling_erin_fall_2018/sp_model/'
+
+pcr.setclone(dem)
+
+slope = pcr.slope(dem)
+pcr.report(slope, output_path +"gradient.map")
+
+ldd = pcr.lddcreate(dem, 1e31, 1e31, 1e31, 1e31)
+pcr.report(ldd, output_path +"ldd.map")
+
+
+#############################################################################
+
 #def downloadDEM(url):
 #    
 #    """The function downloads the DEM from the given url 
@@ -66,34 +80,40 @@ import pycrs
 
 
 
-dem_path = r'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.TIF'
-out_tif = r"D:/OneDrive - University of Idaho/pyhydro_dat/dem/masked_DEM.TIF"
-data = rasterio.open(dem_path)
-
-shp = fiona.open('D:/OneDrive - University of Idaho/pyhydro_dat/shapefile/wsheds30mwgs84.shp')
-minx, miny, maxx, maxy = shp.bounds
-
-bbox = box(minx, miny, maxx, maxy)
-geo = gpd.GeoDataFrame({'geometry': bbox}, index=[0], crs=from_epsg(4326))
-geo = geo.to_crs(crs=data.crs.data)
-
-
-
-def getFeatures(gdf):
-    """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
-    import json
-    return [json.loads(gdf.to_json())['features'][0]['geometry']]
-
-coords = getFeatures(geo)
-
-out_img, out_transform = mask(raster=data, shapes=coords, crop=True)
-
-out_meta = data.meta.copy()
-epsg_code = int(data.crs.data['init'][5:])
-
-
-out_meta.update({"driver": "GTiff","height": out_img.shape[1],\
-                 "width": out_img.shape[2], "transform": out_transform, \
-                 "crs": pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
+#dem_path = r'D:/OneDrive - University of Idaho/pyhydro_dat/dem/n47_w117_1arc_v2.TIF'
+#out_tif = r"D:/OneDrive - University of Idaho/pyhydro_dat/dem/masked_DEM.TIF"
+#data = rasterio.open(dem_path)
+#
+#shp = fiona.open('D:/OneDrive - University of Idaho/pyhydro_dat/shapefile/wsheds30mwgs84.shp')
+#minx, miny, maxx, maxy = shp.bounds
+#
+#bbox = box(minx, miny, maxx, maxy)
+#geo = gpd.GeoDataFrame({'geometry': bbox}, index=[0], crs=from_epsg(4326))
+#geo = geo.to_crs(crs=data.crs.data)
+#
+#
+#
+#def getFeatures(gdf):
+#    """Function to parse features from GeoDataFrame in such a manner that rasterio wants them"""
+#    import json
+#    return [json.loads(gdf.to_json())['features'][0]['geometry']]
+#
+#coords = getFeatures(geo)
+#
+#out_img, out_transform = mask(raster=data, shapes=coords, crop=True)
+#
+#out_meta = data.meta.copy()
+#epsg_code = int(data.crs.data['init'][5:])
+#
+#
+#out_meta.update({"driver": "GTiff","height": out_img.shape[1],\
+#                 "width": out_img.shape[2], "transform": out_transform, \
+#                 "crs": pycrs.parser.from_epsg_code(epsg_code).to_proj4()})
+#
+#
+#with rasterio.open(out_tif, "w", **out_meta) as dest:
+#    dest.write(out_img)
+#    
+#clipped = rasterio.open(out_tif)
 
 
