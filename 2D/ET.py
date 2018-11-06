@@ -5,7 +5,7 @@ Created on Tue Oct 16 22:13:56 2018
 @author: Chinmay
 """
 import numpy as np
-from unit_converter import *
+import unit_converter as uc
 
 
 def extrarad(J, lat, G_sc= 0.0820):
@@ -29,13 +29,42 @@ def extrarad(J, lat, G_sc= 0.0820):
         for i in J:
             dr = 1 + (0.033*np.cos((2*np.pi/365)*int(i)))
             delta = 0.4093 * np.sin(((2*np.pi/365)*int(i))-1.39)
-            Ws = np.arccos(-np.tan(deg2rad(lat))*np.tan(delta))
-            extrarad = ((24 * 60) / np.pi) * G_sc * dr * (Ws * np.sin(deg2rad(lat)) * np.sin(delta) +\
-        np.cos(deg2rad(lat)) * np.cos(delta) * np.sin(Ws))
+            Ws = np.arccos(-np.tan(uc.deg2rad(lat))*np.tan(delta))
+            extrarad = ((24 * 60) / np.pi) * G_sc * dr * (Ws * np.sin(uc.deg2rad(lat)) * np.sin(delta) +\
+        np.cos(uc.deg2rad(lat)) * np.cos(delta) * np.sin(Ws))
             extrarad = np.divide(extrarad, 2.45)
             Ra = np.append(Ra, extrarad)
             Ra = Ra[1:]
         return Ra
+
+
+def extrarad_2d(J, lat, G_sc= 0.0820, LHV = 0.408):
+    
+    
+    """ 
+    args:
+        J: day of year
+        lat: Latitude in angular degrees
+        G_Sc : SOLAR_CONSTANT_MIN = 0.0820 MJ/m2.min 
+        LATENT_HEAT_VAPORIZATION = 0.408 in MJ/kg
+    Calculates:
+        inverse relative distance Earth-sun (dr) and\
+        solar declination (delta)
+        Sunset hour angle (Ws)
+    returns:
+        Ra: Extraterrestrial radiation in MJ/m2/day
+        
+    """
+    dr = 1 + (0.033*np.cos((2*np.pi/365)*J))
+    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
+    omegas = np.arccos(-np.tan(uc.deg2rad(lat[np.newaxis, :, :]))*np.tan(delta[:, np.newaxis, np.newaxis]))
+    
+    p1 = np.multiply(((24.0*60.0)/np.pi)*G_sc, dr)
+    p2 = np.multiply(np.multiply(omegas, np.sin(lat)[np.newaxis, :, :]), np.sin(delta)[:, np.newaxis, np.newaxis])
+    p3 = np.multiply(np.multiply(np.cos(lat)[np.newaxis, :, :], np.cos(delta)[:, np.newaxis, np.newaxis]), np.sin(omegas))
+    Ra = np.multiply(p1[:, np.newaxis, np.newaxis], np.add(p2, p3))
+
+    return Ra*LHV
 
 
 def RefET_Hargreaves(Tmax, Tmin, Ra):
@@ -84,3 +113,23 @@ def simET( wp, wc, potET, fc):
     elif wc <= wp:
         theta = 0.0
     return(potET*theta)
+
+
+
+def simET_2d(pet, fc, wp, wc):
+    """
+    simulates actual evapotranspiration based on soil water stress
+    soil water stress factor is calculated using wilting point, water content\
+    and field capacity
+    Args:    
+    wp: Wilting point
+    wc: Water content
+    potET: Potential evapotranspiration
+    fc: Field capacity
+    
+    throws out:
+    Act ET
+    """
+    theta = np.where(np.greater(wc, wp), np.where(np.less(wc, (0.8*fc)) & np.greater(wc, wp),
+                                                  np.subtract(1.0, np.divide(np.subtract(0.8*fc, wc),np.subtract(0.8*fc,wp))), 1.0), 0.0)
+    return(pet*theta)

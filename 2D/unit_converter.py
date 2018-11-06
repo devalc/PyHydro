@@ -2,7 +2,7 @@
 """
 Created on Tue Oct 16 22:39:08 2018
 
-@author: Chinmay
+@author: Chinmay Deval
 """
 import numpy as np
 
@@ -44,3 +44,14 @@ def rad2deg(rads):
     :rtype: float
     """
     return rads * (180.0 / np.pi)
+
+
+def ymd_to_doy(y,m,d):
+    """
+    converts year(m),month (m),day(d) columns to day of year (1-366)
+    """
+    J = np.add(np.add(np.subtract(d, 32.0),np.trunc(np.multiply(275.0, np.divide(m, 9.0)))),\
+               np.add(np.multiply(2.0, np.trunc(np.divide(3.0, np.add(m, 1.0)))),np.trunc(np.add(np.subtract(np.divide(m, 100.0), np.divide(np.remainder(y, 4.0), 4.0)), 0.975))))
+    
+    return J.astype(int)
+    
