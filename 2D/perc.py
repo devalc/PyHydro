@@ -25,6 +25,6 @@ import numpy as np
 def perc(Kv):
     return Kv
 
-def Perc_2d(kv, hwt):
+def perc_2d(kv, hwt):
     perc = np.where(hwt > 0.0, kv, 0.0)
     return perc

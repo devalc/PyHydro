@@ -21,7 +21,7 @@ from latq import qlat_2d
 from perc import perc_2d
 import routing as RT
 import richdem as rd
-import matplotib.pylot as plt
+#import matplotib.pylot as plt
 
 
 
@@ -98,7 +98,7 @@ sb = np.zeros(P_2d.shape) ##baseflow storage
 bf = np.zeros(P_2d.shape) ##baseflow
 Q = np.zeros(P_2d.shape) #discharge
 actET = np.zeros(P_2d.shape)
-nr_qlat = np.zeros(doy)
+nr_qlat = np.zeros(len(doy))
 
 ##############################soil props#################
 ksat = np.full((nrow, ncol), 1.0) # m/day
@@ -108,9 +108,9 @@ wp_p = np.full((nrow, ncol), 0.1) #wilting point in percent
 kv = np.full((nrow, ncol), 0.001) # m/day # vertical condutivity
 alpha = 0.02
 soildepth = np.full((nrow, ncol), 1.2) #depth of soil profile m
-por = np.muliply(por_p, soildepth) 
-fc = np.muliply(fc_p, soildepth)
-wp = np.muliply(wp_p, soildepth)
+por = np.multiply(por_p, soildepth) 
+fc = np.multiply(fc_p, soildepth)
+wp = np.multiply(wp_p, soildepth)
 Smax = por 
 
 ############################### init values for vars#################

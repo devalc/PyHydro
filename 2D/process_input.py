@@ -72,9 +72,9 @@ def clim_2d(P, tmax, tmin, doy, nrow, ncol):
     and also in 2D
     """
     #doy= len(doy)-1
-    P_2d = np.reshape(np.repeat(P, nrow*ncol), (doy, nrow, ncol))
-    tmin_2d = np.reshape(np.repeat(tmin, nrow*ncol), (doy, nrow, ncol))
-    tmax_2d = np.reshape(np.repeat(tmax, nrow*ncol), (doy, nrow, ncol)) 
+    P_2d = np.reshape(np.repeat(P, nrow*ncol), (len(doy), nrow, ncol))
+    tmin_2d = np.reshape(np.repeat(tmin, nrow*ncol), (len(doy), nrow, ncol))
+    tmax_2d = np.reshape(np.repeat(tmax, nrow*ncol), (len(doy), nrow, ncol)) 
     tavg_2d = 0.5 * (tmin_2d + tmax_2d)
     
     return P_2d, tmax_2d, tmin_2d, tavg_2d
