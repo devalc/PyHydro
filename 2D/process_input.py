@@ -35,11 +35,12 @@ def process_wepp_cli(filepath):
     m = clim[:,1]
     y = clim[:,2]
     doy = uc.ymd_to_doy(y,m,d)
-    P = clim[:,3] * 0.0254
-    tmax = clim[:,7]
-    tmin = clim[:,8]
+    nvals = len(doy)-1
+    P = clim[:nvals,3] * 0.0254
+    tmax = clim[:nvals,7]
+    tmin = clim[:nvals,8]
     
-    return doy,P,tmax,tmin
+    return doy,nvals,P,tmax,tmin
 
 
 
@@ -66,15 +67,15 @@ def processDEM(fileloc):
 
 
 
-def clim_2d(P, tmax, tmin, doy, nrow, ncol):
+def clim_2d(P, tmax, tmin, nvals, nrow, ncol):
     """
     distributes variables (P, tmax, tmin) over the DEM clone
     and also in 2D
     """
-    #doy= len(doy)-1
-    P_2d = np.reshape(np.repeat(P, nrow*ncol), (len(doy), nrow, ncol))
-    tmin_2d = np.reshape(np.repeat(tmin, nrow*ncol), (len(doy), nrow, ncol))
-    tmax_2d = np.reshape(np.repeat(tmax, nrow*ncol), (len(doy), nrow, ncol)) 
+#    doy= len(doy)-1
+    P_2d = np.reshape(np.repeat(P, nrow*ncol), (nvals, nrow, ncol))
+    tmin_2d = np.reshape(np.repeat(tmin, nrow*ncol), (nvals, nrow, ncol))
+    tmax_2d = np.reshape(np.repeat(tmax, nrow*ncol), (nvals, nrow, ncol)) 
     tavg_2d = 0.5 * (tmin_2d + tmax_2d)
     
     return P_2d, tmax_2d, tmin_2d, tavg_2d

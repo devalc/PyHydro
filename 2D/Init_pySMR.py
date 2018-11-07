@@ -21,7 +21,7 @@ from latq import qlat_2d
 from perc import perc_2d
 import routing as RT
 import richdem as rd
-#import matplotib.pylot as plt
+import matplotlib.pyplot as plt
 
 
 
@@ -52,17 +52,19 @@ else:
 """eg: doy,P,tmax,tmin=process_wepp_cli(climate_path)"""
 ##############################################################
 
+#doy,nvals,P,tmax,tmin= pi.process_wepp_cli(climate_path)
 
 
 clim = np.loadtxt(climate_path, skiprows =15)
 
-d = clim[:65,0]
-m = clim[:65,1]
-y = clim[:65,2]
+d = clim[:50,0]
+m = clim[:50,1]
+y = clim[:50,2]
 doy = uc.ymd_to_doy(y,m,d)
-P = clim[:65,3] * 0.0254
-tmax = clim[:65,7]
-tmin = clim[:65,8]
+nvals = len(doy)-1  ########This needs to be incorporated into the wepp dat process func
+P = clim[:nvals,3] * 0.0254
+tmax = clim[:nvals,7]
+tmin = clim[:nvals,8]
 
 
 
@@ -76,7 +78,7 @@ pitremovedDEM , accumDEM = pi.processDEM(dem_path)
 
 ##### distribute same var values over DEM clone and also make it 2d#############################
 
-P_2d,tmax_2d, tmin_2d, tavg_2d = pi.clim_2d(P,tmax,tmin,doy,nrow,ncol)
+P_2d,tmax_2d, tmin_2d, tavg_2d = pi.clim_2d(P,tmax,tmin,nvals,nrow,ncol)
 
 
 ########### INIT Parameters####################################################
@@ -100,7 +102,7 @@ Q = np.zeros(P_2d.shape) #discharge
 actET = np.zeros(P_2d.shape)
 nr_qlat = np.zeros(len(doy))
 
-##############################soil props#################
+##############################Init soil props#################
 ksat = np.full((nrow, ncol), 1.0) # m/day
 por_p = np.full((nrow, ncol), 0.45) #porosity in percent
 fc_p = np.full((nrow, ncol), 0.36) #field capacity in percent
@@ -113,22 +115,21 @@ fc = np.multiply(fc_p, soildepth)
 wp = np.multiply(wp_p, soildepth)
 Smax = por 
 
-############################### init values for vars#################
+############################### set initial values for vars#################
 q[0,:,:] = 0 # set initial runoff m
 qa[0,:,:] = 0
 s[0,:,:] = 0.7 # set initial storage (i.e water content) m
 sb[0,:,:] = 0 # set initial aquifer storage (baseflow source) m
 
 
-
-#######################Precip to Psnow and Prain #############################
-
-Psnow_2d, Prain_2d = sn.P_to_Snow_and_Rain_2d(P_2d, tavg_2d, train, tsnow)
-
 ###### call snow module#############################
 
-meltflux_2d = np.apply_along_axis(sn.Snowmelt_DD_usace, 0, arr = k,temp = 'k, tavg_2d' )
+meltflux_2d = np.apply_along_axis(sn.Snowmelt_DD_usace, 0,tavg_2d, k  )
+###Precip to Psnow and Prain
+Psnow_2d, Prain_2d = sn.P_to_Snow_and_Rain_2d(P_2d, tavg_2d, train, tsnow)
+###simulate Snow Water Equivalent and melt
 simSWE_2d, act_melt_2d = sn.simSWE_2d(Psnow_2d, meltflux_2d)
+##### total water available for the soli profile/wshed
 Pin_2d = np.add(Prain_2d, act_melt_2d)
 
 ##### call ET module to estimate reference and potential ET#############################
