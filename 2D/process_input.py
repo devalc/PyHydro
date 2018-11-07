@@ -35,7 +35,8 @@ def process_wepp_cli(filepath):
     m = clim[:,1]
     y = clim[:,2]
     doy = uc.ymd_to_doy(y,m,d)
-    nvals = len(doy)-1
+    doy = doy[:-1]
+    nvals = len(doy)
     P = clim[:nvals,3] * 0.0254
     tmax = clim[:nvals,7]
     tmin = clim[:nvals,8]

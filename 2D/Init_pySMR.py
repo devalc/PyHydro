@@ -61,7 +61,8 @@ d = clim[:50,0]
 m = clim[:50,1]
 y = clim[:50,2]
 doy = uc.ymd_to_doy(y,m,d)
-nvals = len(doy)-1  ########This needs to be incorporated into the wepp dat process func
+doy = doy[:-1]
+nvals = len(doy) ########This needs to be incorporated into the wepp dat process func
 P = clim[:nvals,3] * 0.0254
 tmax = clim[:nvals,7]
 tmin = clim[:nvals,8]
@@ -129,19 +130,22 @@ meltflux_2d = np.apply_along_axis(sn.Snowmelt_DD_usace, 0,tavg_2d, k  )
 Psnow_2d, Prain_2d = sn.P_to_Snow_and_Rain_2d(P_2d, tavg_2d, train, tsnow)
 ###simulate Snow Water Equivalent and melt
 simSWE_2d, act_melt_2d = sn.simSWE_2d(Psnow_2d, meltflux_2d)
-##### total water available for the soli profile/wshed
+##### total water available to the soil profile at each cell
 Pin_2d = np.add(Prain_2d, act_melt_2d)
 
 ##### call ET module to estimate reference and potential ET#############################
-
-extrarad_2d = ET.extrarad_2d(np.full((nrow, ncol),lat), doy)
+lat = np.full((nrow, ncol),lat)
+extrarad_2d = ET.extrarad_2d(doy,lat, nvals, nrow, ncol)
 
 RefET_2d = ET.RefET_Hargreaves(tmax_2d, tmin_2d, extrarad_2d)
 PotET_2d = ET.ETpot(RefET_2d)
 actET[0,:,:] = ET.simET_2d(PotET_2d[0,:,:], fc, wp, s[0,:,:])
 
+
+###### Routing : finds flow contribution to each cell
 neigh_contri = RT.flow_from_neighcells(pitremovedDEM)
 
+####### Simulate hydrology
 
 for i in range(1,Pin_2d .shape[0]):
     s[i, :, :] = s[i - 1, :, :] + Pin_2d[i,:,:]
@@ -157,6 +161,8 @@ for i in range(1,Pin_2d .shape[0]):
     qa[i, :, :] = rd.FlowAccumulation(rd.LoadGDAL(dem_path), method='Dinf', weights=q[i,:,:])
     s[i, :, :] = np.where(s[i, :, :] > (soildepth * por), (soildepth * por), s[i, :, :])
 
+
+##### Some plots
 
 outrow = 12
 outcol = 1

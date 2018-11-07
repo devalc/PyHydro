@@ -38,7 +38,36 @@ def extrarad(J, lat, G_sc= 0.0820):
         return Ra
 
 
-def extrarad_2d(J, lat, G_sc= 0.0820, LHV = 0.408):
+#def extrarad_2d(J, lat, G_sc= 0.0820, LHV = 0.408):
+#    
+#    
+#    """ 
+#    args:
+#        J: day of year
+#        lat: Latitude in angular degrees
+#        G_Sc : SOLAR_CONSTANT_MIN = 0.0820 MJ/m2.min 
+#        LATENT_HEAT_VAPORIZATION = 0.408 in MJ/kg
+#    Calculates:
+#        inverse relative distance Earth-sun (dr) and\
+#        solar declination (delta)
+#        Sunset hour angle (Ws)
+#    returns:
+#        Ra: Extraterrestrial radiation in MJ/m2/day
+#        
+#    """
+#    dr = 1 + (0.033*np.cos((2*np.pi/365)*J))
+#    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
+#    omegas = np.arccos(np.multiply(-np.tan(uc.deg2rad(lat[np.newaxis, :, :])),np.tan(delta[:, np.newaxis, np.newaxis])))
+#    
+#    p1 = np.multiply(((24.0*60.0)/np.pi)*G_sc, dr)
+#    p2 = np.multiply(np.multiply(omegas, np.sin(lat)[np.newaxis, :, :]), np.sin(delta)[:, np.newaxis, np.newaxis])
+#    p3 = np.multiply(np.multiply(np.cos(lat)[np.newaxis, :, :], np.cos(delta)[:, np.newaxis, np.newaxis]), np.sin(omegas))
+#    Ra = np.multiply(p1[:, np.newaxis, np.newaxis], np.add(p2, p3))
+#
+#    return Ra*LHV
+
+
+def extrarad_2d(J, lat, nvals, nrow, ncol, G_sc= 0.0820, LHV = 0.408):
     
     
     """ 
@@ -55,16 +84,17 @@ def extrarad_2d(J, lat, G_sc= 0.0820, LHV = 0.408):
         Ra: Extraterrestrial radiation in MJ/m2/day
         
     """
-    dr = 1 + (0.033*np.cos((2*np.pi/365)*J))
-    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
-    omegas = np.arccos(-np.tan(uc.deg2rad(lat[np.newaxis, :, :]))*np.tan(delta[:, np.newaxis, np.newaxis]))
     
-    p1 = np.multiply(((24.0*60.0)/np.pi)*G_sc, dr)
-    p2 = np.multiply(np.multiply(omegas, np.sin(lat)[np.newaxis, :, :]), np.sin(delta)[:, np.newaxis, np.newaxis])
-    p3 = np.multiply(np.multiply(np.cos(lat)[np.newaxis, :, :], np.cos(delta)[:, np.newaxis, np.newaxis]), np.sin(omegas))
-    Ra = np.multiply(p1[:, np.newaxis, np.newaxis], np.add(p2, p3))
-
-    return Ra*LHV
+    dr = 1 + (0.033*np.cos((2*np.pi/365)*J))
+    dr_2d = np.reshape(np.repeat(dr, nrow*ncol), (nvals, nrow, ncol))
+    delta = 0.4093 * np.sin(((2*np.pi/365)*J)-1.39)
+    delta_2d = np.reshape(np.repeat(delta, nrow*ncol), (nvals, nrow, ncol))
+    Ws_2d = np.arccos(-np.tan(uc.deg2rad(lat))*np.tan(delta_2d))
+    extrarad_2d = ((24 * 60) / np.pi) * G_sc * dr_2d * (Ws_2d * np.sin(uc.deg2rad(lat)) * np.sin(delta_2d) + \
+                   np.cos(uc.deg2rad(lat)) * np.cos(delta_2d) * np.sin(Ws_2d))
+    extrarad_2d = np.divide(extrarad_2d, 2.45)
+    
+    return extrarad_2d
 
 
 def RefET_Hargreaves(Tmax, Tmin, Ra):
