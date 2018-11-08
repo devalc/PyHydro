@@ -53,7 +53,7 @@ def routeflow(flow_contri, flow):
 
     """
     # flow routed
-    routedf = np.zeros((flowprop.shape[1], flowprop.shape[2])) 
+    routedf = np.zeros((flow_contri.shape[1], flow_contri.shape[2])) 
 #    flowdec = flow.copy() #decrement the total flow, this is a mass balance check
     
      # flow from west

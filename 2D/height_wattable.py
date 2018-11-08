@@ -32,6 +32,28 @@ import numpy as np
 #            ht[i] = D*((soilmoist[i]-fc)/(sat_wc-fc))
 #    return ht
 
+#def ht_wattab(soilmoist,fc, porosity, D):
+#    
+#    """
+#        
+#   
+#    Computes height of water table
+#    
+#    where:
+#        D = depth of soil layer (mm)
+#        fc = watercontent at field capacity in percent
+#        porosity: in percent
+#       
+#    
+#    """
+#    if soilmoist < fc:
+#        ht = 0
+#    elif soilmoist >= porosity:
+#        ht = D
+#    else:
+#        ht = D*((soilmoist-fc)/(porosity-fc))
+#    return ht
+
 def ht_wattab(soilmoist,fc, porosity, D):
     
     """
@@ -40,16 +62,18 @@ def ht_wattab(soilmoist,fc, porosity, D):
     Computes height of water table
     
     where:
-        D = depth of soil layer (mm)
+        D = depth of soil layer 
         fc = watercontent at field capacity in percent
         porosity: in percent
+        soilmoist : soilmoisture content
+        
+    when soilmoist less than field capacity, no ht (water table set to depth)
        
     
     """
-    if soilmoist < fc:
-        ht = 0
-    elif soilmoist >= porosity:
-        ht = D
-    else:
-        ht = D*((soilmoist-fc)/(porosity-fc))
+    
+    ht = np.where(soilmoist < fc, 0.0, D)
+    # where water content is between field capacity and porosity, water table height is determined linearly
+    # the previous line accounts for anywhere water content is >= porosity
+    ht = np.where((soilmoist < porosity) & (soilmoist >= fc), D*((soilmoist-fc)/(porosity-fc)), ht)
     return ht

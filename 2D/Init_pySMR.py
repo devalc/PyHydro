@@ -103,8 +103,8 @@ percol = np.zeros(P_2d.shape) ## percolation
 sb = np.zeros(P_2d.shape) ##baseflow storage
 bf = np.zeros(P_2d.shape) ##baseflow
 Q = np.zeros(P_2d.shape) #discharge
-actET = np.zeros(P_2d.shape)
-nr_qlat = np.zeros(len(doy))
+actET = np.zeros(P_2d.shape) # actual ET
+
 
 ##############################Init soil props#################
 ksat = np.full((nrow, ncol), 1.0) # m/day
@@ -148,13 +148,13 @@ actET[0,:,:] = ET.simET_2d(PotET_2d[0,:,:], fc, wp, s[0,:,:])
 ###### Routing : finds flow contribution to each cell
 neigh_contri = RT.flow_from_neighcells(pitremovedDEM)
 
-####### Simulate hydrology
+####### Simulate water balance
 
 for i in range(1,Pin_2d .shape[0]):
     s[i, :, :] = s[i - 1, :, :] + Pin_2d[i,:,:]
     hwt[i, :, :] = watht.ht_wattab(np.divide(s[i, :, :], soildepth), fc_p, por_p, soildepth)
     qlat_out[i, :, :] = qlat_2d(ksat, slope, hwt[i, :, :], geot_info[1], geot_info[1])
-    qlat_in[i, :, :], nr_qlat[i] = RT.routeflow(neigh_contri, qlat_out[i, :, :])
+    qlat_in[i, :, :] = RT.routeflow(neigh_contri, qlat_out[i, :, :])
     s[i, :, :] = s[i, :, :] + qlat_in[i,:,:] - qlat_out[i,:,:]
     actET[i, :, :] = ET.simET_2d(PotET_2d[i, :, :], fc, wp, s[i - 1, :, :])
     s[i,:,:] = s[i,:,:] - actET[i,:,:]
@@ -164,18 +164,7 @@ for i in range(1,Pin_2d .shape[0]):
     qa[i, :, :] = rd.FlowAccumulation(rd.LoadGDAL(dem_path), method='Dinf', weights=q[i,:,:])
     s[i, :, :] = np.where(s[i, :, :] > (soildepth * por), (soildepth * por), s[i, :, :])
 
-
+###########################TBD#################################################
 ##### Some plots
 
-outrow = 12
-outcol = 1
-print(Pin_2d)
-print('qlat', qlat_in[:, outrow, outcol]-qlat_out[:,outrow, outcol])
-print('runoff accum', qa[:, outrow, outcol])
-print('flow', qa[:, outrow,outcol]+(qlat_in[:, outrow, outcol]-qlat_out[:, outrow, outcol]))
-plt.plot(doy, qlat_in[:, outrow, outcol]-qlat_out[:, outrow, outcol], 'g',
-         doy, qa[:, outrow, outcol], 'c',
-         doy, (qa[:, outrow, outcol]+(qlat_in[:, outrow, outcol]-qlat_out[:, outrow, outcol])), 'b')
-plt.show()
-
-
+##### Waterbalance Check
