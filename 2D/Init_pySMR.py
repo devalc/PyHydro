@@ -167,4 +167,16 @@ for i in range(1,Pin_2d .shape[0]):
 ###########################TBD#################################################
 ##### Some plots
 
+outrow = 44
+outcol = 41
+plt.plot(doy, qlat_in[:, outrow, outcol], 'g',
+         doy, qa[:, outrow, outcol], 'c',
+         doy, (qa[:, outrow, outcol]+qlat_in[:, outrow, outcol]), 'b')
+plt.show()
+plt.plot(doy, hwt[:, outrow, outcol], 'b')
+plt.show()
+plt.plot(doy, s[:, outrow, outcol], 'b')
+plt.show()
+
+
 ##### Waterbalance Check
