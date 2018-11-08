@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 #### Provide paths to the dem and climate##########################################################
 
 dem_path = 'D:/Chinmay/storagetemp/data_from_WEPPcloud/dem/dem.tif'
+#dem_path_ESPG4326 = 'D:/Chinmay/storagetemp/data_from_WEPPcloud/dem/dem_ESPG4326.tif'
 climate_path = 'D:/Chinmay/storagetemp/data_from_WEPPcloud/climate/265191.cli'
 
 
@@ -71,6 +72,8 @@ tmin = clim[:nvals,8]
 
 ####### get DEM info, and calculate flow accum.  load slope and aspect#############################
 nrow, ncol = pi.dem_row_col_info(dem_path)
+lat_UTM, lon_UTM = pi.getCoords(dem_path)
+lat_DD,lon_DD = pi.UTM_to_DD(dem_path, lat_UTM, lon_UTM)
 slp = gdal.Open('D:/Chinmay/storagetemp/data_from_WEPPcloud/export/arcmap/gtiffs/FVSLOP.tif')
 geot_info = slp.GetGeoTransform()
 slope = slp.GetRasterBand(1).ReadAsArray()
@@ -83,7 +86,7 @@ P_2d,tmax_2d, tmin_2d, tavg_2d = pi.clim_2d(P,tmax,tmin,nvals,nrow,ncol)
 
 
 ########### INIT Parameters####################################################
-lat = 47.15
+lat = np.reshape(np.asarray(lat_DD),(nrow, ncol))
 #optimized parameters for SWE
 k = 1.16 #length/degree/day
 tbase = 0.0 #degC
@@ -134,7 +137,7 @@ simSWE_2d, act_melt_2d = sn.simSWE_2d(Psnow_2d, meltflux_2d)
 Pin_2d = np.add(Prain_2d, act_melt_2d)
 
 ##### call ET module to estimate reference and potential ET#############################
-lat = np.full((nrow, ncol),lat)
+
 extrarad_2d = ET.extrarad_2d(doy,lat, nvals, nrow, ncol)
 
 RefET_2d = ET.RefET_Hargreaves(tmax_2d, tmin_2d, extrarad_2d)

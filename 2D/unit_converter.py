@@ -5,6 +5,8 @@ Created on Tue Oct 16 22:39:08 2018
 @author: Chinmay Deval
 """
 import numpy as np
+import gdal
+
 
 def celsius2kelvin(celsius):
     """
@@ -54,4 +56,5 @@ def ymd_to_doy(y,m,d):
                np.add(np.multiply(2.0, np.trunc(np.divide(3.0, np.add(m, 1.0)))),np.trunc(np.add(np.subtract(np.divide(m, 100.0), np.divide(np.remainder(y, 4.0), 4.0)), 0.975))))
     
     return J.astype(int)
-    
+
+

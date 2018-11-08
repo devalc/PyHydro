@@ -9,6 +9,8 @@ import numpy as np
 import unit_converter as uc
 import gdal
 import richdem as rd
+import osr
+from pyproj import Proj, transform
 
 def process_data(filepath):
     data = pd.read_csv(filepath, nrows = 6954,parse_dates=['Date'], skiprows=1,\
@@ -54,6 +56,64 @@ def dem_row_col_info(fileloc):
     ncol= dem.RasterXSize
     dem = None
     return nrow, ncol
+
+
+def getCoords(rasterpath):
+    """
+    extracts coordinates of each pixel in raster by
+    iterating over each row and all columns in that row of the raster
+    
+    args:
+        rasterpath: str of path to the raster file
+        path_to_store_wgs84_raster: location where you'd like to store projected
+        raster in case the projection of rasterpath is not equal to ESPG:4326
+    
+    returns: returns global coordinates from pixel x, y coords
+    """
+    file = gdal.Open(rasterpath)
+#    #Check_coordinate system and if not wgs84 convert to wgs84
+#    proj = osr.SpatialReference(wkt=file.GetProjection())
+#    proj_in = proj.GetAttrValue('AUTHORITY',1)
+    # if not ESPG:4326, project to it and get coordinates #Put this check
+#    if proj_in != '4326':
+#        filewgs84 = gdal.Warp('',file,dstSRS='EPSG:4326',format='VRT')
+#        nrow= filewgs84.RasterYSize
+#        ncol= filewgs84.RasterXSize    
+#        xoff, a, b, yoff, d, e = file.GetGeoTransform()
+#        lat = []
+#        lon = []
+#        for row in range(0,nrow):
+#            for col in range (0,ncol):
+#                xp = a * col + b * row + xoff
+#                yp = d * col + e * row + yoff
+#                lat.append(yp)
+#                lon.append(xp)
+#    #else get coordinates
+#    else:
+    nrow= file.RasterYSize
+    ncol= file.RasterXSize    
+    xoff, a, b, yoff, d, e = file.GetGeoTransform()
+    lat = []
+    lon = []
+    for row in range(0,nrow):
+        for col in range (0,ncol):
+            xp = a * col + b * row + xoff
+            yp = d * col + e * row + yoff
+            lat.append(yp)
+            lon.append(xp)
+    return lat, lon
+
+
+def UTM_to_DD(rasterpath, lat,lon):
+   
+    file = gdal.Open(rasterpath)
+    proj = osr.SpatialReference(wkt=file.GetProjection())
+    proj_in = proj.GetAttrValue('AUTHORITY',1)
+    inProj = Proj(init='epsg:'+ proj_in)
+    outProj = Proj(init='epsg:4326')
+    lon_DD,lat_DD = transform(inProj,outProj,lon,lat)
+    return lat_DD, lon_DD
+
 
 
 def processDEM(fileloc):
